@@ -3,7 +3,7 @@ using Application.Features.Auth.Interfaces;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Persistance.Repositories;
+namespace Infrastructure.Persistence.Repositories;
 
 public class UserRepository : IUserRepository
 {

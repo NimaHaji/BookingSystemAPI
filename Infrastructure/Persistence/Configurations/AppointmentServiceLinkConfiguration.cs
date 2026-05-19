@@ -2,7 +2,7 @@ using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistance.Configurations;
+namespace Infrastructure.Persistence.Configurations;
 
 public class AppointmentServiceLinkConfiguration:IEntityTypeConfiguration<AppointmentServiceLink>
 {
@@ -14,10 +14,12 @@ public class AppointmentServiceLinkConfiguration:IEntityTypeConfiguration<Appoin
         
         builder.HasOne(x=>x.Appointment)
             .WithMany(x=>x.AppointmentServices)
-            .HasForeignKey(x=>x.AppointmentId);
+            .HasForeignKey(x=>x.AppointmentId)
+            .OnDelete(DeleteBehavior.Restrict);
         
         builder.HasOne(x => x.Service)
             .WithMany(x=>x.AppointmentServices)
-            .HasForeignKey(x=>x.ServiceId);
+            .HasForeignKey(x=>x.ServiceId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
