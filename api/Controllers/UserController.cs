@@ -33,7 +33,7 @@ public class UserController:ControllerBase
         return Ok(await _service.RefreshTokenAsync(dto.RefreshToken));
     }
     [HttpGet("ViewUsers")]
-    [Authorize(Roles =  "Admin")]
+    [Authorize(Roles =  "SuperAdmin")]
     public async Task<IActionResult> ViewUsers()
     {
         var res= await _service.GetAllUsersAsync();

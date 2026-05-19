@@ -16,7 +16,7 @@ public class ServiceController:ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles =  "SuperAdmin")]
     public async Task<IActionResult> Create([FromBody] CreateService service)
     {
         var res=await _serviceAppService.CreateServiceAsync(service);
@@ -24,7 +24,7 @@ public class ServiceController:ControllerBase
     }
 
     [HttpPatch("{serviceId}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles =  "SuperAdmin")]
     public async Task<IActionResult> Edit([FromRoute] Guid serviceId,[FromBody] EditService service)
     {
         var res= await _serviceAppService.EditServiceAsync(serviceId,service);
@@ -39,7 +39,7 @@ public class ServiceController:ControllerBase
     }
 
     [HttpDelete("{serviceId}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles =  "SuperAdmin")]
     public async Task<IActionResult> Delete([FromRoute] Guid serviceId)
     {
        var res = await _serviceAppService.DeleteServiceAsync(serviceId);
