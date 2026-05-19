@@ -5,6 +5,8 @@ public class Service
     public Guid Id { get; private set; }
     public string Title { get; private set; }
     public int DurationMinutes { get; private set; }
+    public Guid TenantId { get; set; }
+    public Tenant Tenant { get; set; }
     public ICollection<AppointmentServiceLink> AppointmentServices { get; set; }=new List<AppointmentServiceLink>();
 
     private Service() { }

@@ -2,7 +2,7 @@ using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistance.Configurations;
+namespace Infrastructure.Persistence.Configurations;
 
 public class ServiceConfiguration:IEntityTypeConfiguration<Service>
 {
@@ -24,5 +24,10 @@ public class ServiceConfiguration:IEntityTypeConfiguration<Service>
         builder.HasMany(x=>x.AppointmentServices)
             .WithOne(x=>x.Service)
             .HasForeignKey(x=>x.ServiceId);
+        
+        builder
+            .HasOne(x=>x.Tenant)
+            .WithMany(x=>x.Services)
+            .HasForeignKey(x=>x.TenantId);
     }
 }

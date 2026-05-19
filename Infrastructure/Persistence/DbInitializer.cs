@@ -3,7 +3,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Microsoft.Extensions.Configuration;
 
-namespace Infrastructure.Persistance;
+namespace Infrastructure.Persistence;
 
 public class DbInitializer
 {

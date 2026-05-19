@@ -2,7 +2,7 @@ using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistance.Configurations;
+namespace Infrastructure.Persistence.Configurations;
 
 public class RefreshTokenConfiguration:IEntityTypeConfiguration<RefreshToken>
 {

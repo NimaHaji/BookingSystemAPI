@@ -6,7 +6,7 @@ using Domain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Infrastructure;
-using Infrastructure.Persistance;
+using Infrastructure.Persistence;
 using Infrastructure.Security.Hashing;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;

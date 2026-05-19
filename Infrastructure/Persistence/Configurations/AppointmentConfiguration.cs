@@ -2,7 +2,7 @@ using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistance.Configurations;
+namespace Infrastructure.Persistence.Configurations;
 
 public class AppointmentConfiguration:IEntityTypeConfiguration<Appointment>
 {
@@ -34,6 +34,13 @@ public class AppointmentConfiguration:IEntityTypeConfiguration<Appointment>
             .WithOne(x=>x.Appointment)
             .HasForeignKey(x=>x.AppointmentId);
         
+        builder
+            .HasOne(ap=>ap.Tenant)
+            .WithMany(x=>x.Appointments)
+            .HasForeignKey(x=>x.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+            
         builder.HasCheckConstraint(
             "CK_Status_Valid_Values",
             "[Status] IN (0, 1,2)"

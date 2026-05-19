@@ -3,6 +3,7 @@ using Application.Features.Appointments.Services;
 using Application.Features.Auth.Interfaces;
 using Application.Features.Auth.Services;
 using Application.Features.Service.Services;
+using Application.Features.Tenant.Services;
 using Microsoft.Extensions.DependencyInjection;
 namespace Application;
 
@@ -13,7 +14,8 @@ public static class DependencyInjection
         services.AddScoped<IAppointmentService,AppointmentService>();
         services.AddScoped<IServiceAppService,ServiceAppService>();
         services.AddScoped<IUserService,UserService>();
-        services.AddScoped<IPasswordRecoveryService,PasswordRecoveryService>();
+        services.AddScoped<IPasswordRecoveryService, PasswordRecoveryService>();
+        services.AddScoped<TenantServiceContract,TenantService>();
         return services;
     }
 }

@@ -1,11 +1,12 @@
 using Domain.Entities;
-using Infrastructure.Persistance.Configurations;
+using Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Persistance;
+namespace Infrastructure.Persistence;
 
 public class AppDbContext:DbContext
 {
+    public DbSet<Tenant> Tenants { get; set; }
     public DbSet<Appointment> Appointments =>Set<Appointment>();
     public DbSet<Service> Services =>Set<Service>();
     public  DbSet<User> Users =>Set<User>();
@@ -16,6 +17,11 @@ public class AppDbContext:DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppointmentConfiguration).Assembly);
+    }
+
+    public Task<int> SaveAsync(CancellationToken cancellationToken = new CancellationToken())
+    {
+        return base.SaveChangesAsync(cancellationToken);
     }
 
     public AppDbContext(DbContextOptions options):base(options)
