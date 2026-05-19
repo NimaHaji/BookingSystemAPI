@@ -5,8 +5,9 @@ using Application.Features.Appointments.Interfaces;
 using Application.Features.AppointmentServiceLink.Interfaces;
 using Application.Features.Auth.Interfaces;
 using Application.Features.Service.Interfaces;
-using Infrastructure.Persistance;
-using Infrastructure.Persistance.Repositories;
+using Application.Features.Tenant.Interfaces;
+using Infrastructure.Persistence;
+using Infrastructure.Persistence.Repositories;
 using Infrastructure.Security;
 using Infrastructure.Security.Context;
 using Infrastructure.Security.Hashing;
@@ -34,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IUSerContext, UserContext>();
         services.AddScoped<IVerificationCodeGenerator, VerificationCodeGenerator>();
+        services.AddScoped<TenantRepositoryContract, TenantRepository>();
         
         return services;
     }

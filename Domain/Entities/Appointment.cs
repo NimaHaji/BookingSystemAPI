@@ -11,6 +11,8 @@ namespace Domain.Entities
         public DateTime StartTime { get; private set; }
         public DateTime EndTime { get; private set; }
         public AppointmentStatus Status { get; private set; }
+        public Guid TenantId { get; set; }
+        public Tenant Tenant { get; set; }
 
         public ICollection<AppointmentServiceLink> AppointmentServices { get; private set; } = new List<AppointmentServiceLink>();
 

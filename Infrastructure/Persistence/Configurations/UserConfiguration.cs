@@ -2,7 +2,7 @@ using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistance.Configurations;
+namespace Infrastructure.Persistence.Configurations;
 
 public class UserConfiguration:IEntityTypeConfiguration<User>
 {
@@ -42,7 +42,11 @@ public class UserConfiguration:IEntityTypeConfiguration<User>
         builder.Property(x => x.PasswordResetAttemptsCount)
             .IsRequired()
             .HasDefaultValue(0);
-            
+        builder
+            .HasOne(t => t.Tenant)
+            .WithMany(t=>t.Users)
+            .HasForeignKey(t => t.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
         builder.HasCheckConstraint(
             "CK_Role_Valid_Values",
             "[Role] IN (0, 1)"

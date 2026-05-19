@@ -13,6 +13,8 @@ public class User
     public string? PasswordResetCodeHash { get; private set; }
     public DateTime? PasswordResetCodeExpireAt { get; private set; }
     public int PasswordResetAttemptsCount { get; private set; }
+    public Guid? TenantId { get; private set; }
+    public Tenant? Tenant { get; set; }
     public ICollection<RefreshToken> RefreshTokens { get; private set; } = new List<RefreshToken>();
     public ICollection<Appointment> Appointments { get; private set; } = new List<Appointment>();
 
