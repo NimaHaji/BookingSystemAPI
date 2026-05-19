@@ -10,13 +10,13 @@ public class DbInitializer
     
     public static void Seed(AppDbContext context, IPasswordHasher passwordHasher,IConfiguration configuration)
     {
-        if (!context.Users.Any(u => u.Role == UserRole.Admin))
+        if (!context.Users.Any(u => u.Role == UserRole.SuperAdmin))
         {
-            var FullName=configuration["SeedAdmin:FullName"];
-            var Email=configuration["SeedAdmin:Email"];
-            var PhoneNumber=configuration["SeedAdmin:PhoneNumber"];
-            var Password=passwordHasher.Hash(configuration["SeedAdmin:Password"]);
-            var role=UserRole.Admin;
+            var FullName=configuration["SeedSuperAdmin:FullName"];
+            var Email=configuration["SeedSuperAdmin:Email"];
+            var PhoneNumber=configuration["SeedSuperAdmin:PhoneNumber"];
+            var Password=passwordHasher.Hash(configuration["SeedSuperAdmin:Password"]);
+            var role=UserRole.SuperAdmin;
             
             var User=new User(FullName,Email,PhoneNumber,role,Password);
             

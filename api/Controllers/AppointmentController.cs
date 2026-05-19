@@ -33,7 +33,7 @@ public class AppointmentController:ControllerBase
 
     [HttpGet]
     [Route("ViewAppointments")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> ViewAppointments()
     {
         var appointments=await _service.ViewAppointments();

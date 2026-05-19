@@ -16,14 +16,14 @@ public class ServiceAppService:IServiceAppService
         _userContext = context;
     }
     
-    private void EnsureAdmin()
+    private void EnsureSuperAdmin()
     {
-        if (_userContext.Role != UserRole.Admin)
+        if (_userContext.Role != UserRole.SuperAdmin)
             throw new ForbiddenAccessException("Only Admin Access");
     }
     public async Task<string> CreateServiceAsync(CreateService createService)
     {
-        EnsureAdmin();
+        EnsureSuperAdmin();
         var service=new Domain.Entities.Service(createService.Title,createService.DurationMinutes);
         await _repository.CreatServiceAsync(service);
         return $"{service.Title} created";
@@ -31,7 +31,7 @@ public class ServiceAppService:IServiceAppService
     
     public async Task<string> EditServiceAsync(Guid serviceId,EditService editService)
     {
-        EnsureAdmin();
+        EnsureSuperAdmin();
         var appointment = await _repository.GetServiceByIdAsync(serviceId) ?? throw new NotFoundException("Service not found");
         
         appointment.Edit(editService.DurationMinutes,editService.Title);
@@ -41,7 +41,7 @@ public class ServiceAppService:IServiceAppService
 
     public async Task<string> DeleteServiceAsync(Guid serviceId)
     {
-        EnsureAdmin();
+        EnsureSuperAdmin();
         await _repository.DeleteServiceAsync(serviceId);
         return $"{serviceId} deleted";
     }
