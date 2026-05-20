@@ -42,6 +42,14 @@ public class User
         Password = password;
     }
 
+    public void AssignTenantToUser(Guid tenantId)
+    {
+        TenantId = tenantId;
+    }
+    public void ChangeRoleTo(UserRole role)
+    {
+        Role = role;
+    }
     public void UpdateProfile(string fullName, string phoneNumber)
     {
         FullName = fullName;

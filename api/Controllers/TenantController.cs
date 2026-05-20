@@ -1,5 +1,6 @@
 using Application.Features.Tenant.DTO_s;
 using Application.Features.Tenant.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
@@ -15,6 +16,7 @@ public class TenantController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles =  "User,Admin")]
     public async Task<IActionResult> RegisterTenant([FromBody] RegisterTenantDTO dto)
     {
         // Todo: expire date base on plan 
