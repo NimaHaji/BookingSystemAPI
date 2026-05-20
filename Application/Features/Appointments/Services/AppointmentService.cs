@@ -29,10 +29,10 @@ public class AppointmentService : IAppointmentService
         _userContext = userContext;
     }
 
-    private void EnsureAdmin()
+    private void EnsureSuperAdmin()
     {
-        if (_userContext.Role!=UserRole.Admin)
-            throw new UnauthorizedAccessException("Only Admin Access");
+        if (_userContext.Role!=UserRole.SuperAdmin)
+            throw new UnauthorizedAccessException("Only SuperAdmin Access");
     }
     public async Task<string> CreateAppointmentAsync(CreateAppointment dto)
     {
@@ -93,7 +93,7 @@ public class AppointmentService : IAppointmentService
 
     public async Task<List<ViewAppointments>> ViewAppointments()
     {
-        EnsureAdmin();
+        EnsureSuperAdmin();
         return await _appointmentRepository.ViewAppointments();
     }
 

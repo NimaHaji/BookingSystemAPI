@@ -4,6 +4,7 @@ using Application.Common.Interfaces.Repositories;
 using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Interfaces;
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.Features.Auth.Services;
 
@@ -66,6 +67,13 @@ public class UserService : IUserService
         await _refreshTokenRepository.SaveChangesAsync();
 
         return new LoginUserResponseDto(token, refreshTokenValue);
+    }
+
+    public async Task ChangeRoleTo(UserRole role)
+    {
+        var userId =_userContext.UserId;
+        var user =await _userRepository.GetUserByIdAsync(userId);
+        user?.ChangeRoleTo(role);
     }
 
     public async Task<string> LogoutUserAsync()
