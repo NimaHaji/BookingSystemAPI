@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using api.Middlewares;
 using Application;
 using Application.Common;
 using Domain.Entities;
@@ -104,6 +105,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 });
 var app = builder.Build();
 
+app.UseMiddleware<TenantResolutionMiddleware>();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

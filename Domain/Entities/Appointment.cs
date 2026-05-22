@@ -1,8 +1,9 @@
 using Domain.Enums;
+using Domain.Interfaces;
 
 namespace Domain.Entities
 {
-    public class Appointment
+    public class Appointment:TenantEntityContract
     {
         public Guid AppointmentId { get; private set; }
         public Guid UserId { get; private set; }

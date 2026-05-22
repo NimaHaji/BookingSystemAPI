@@ -4,6 +4,7 @@ using Application.Features.Auth.Interfaces;
 using Application.Features.Auth.Services;
 using Application.Features.Service.Services;
 using Application.Features.Tenant.Services;
+using Domain.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 namespace Application;
 
@@ -16,6 +17,7 @@ public static class DependencyInjection
         services.AddScoped<IUserService,UserService>();
         services.AddScoped<IPasswordRecoveryService, PasswordRecoveryService>();
         services.AddScoped<TenantServiceContract,TenantService>();
+        services.AddScoped<TenantProviderContract, TenantProvider>();
         return services;
     }
 }

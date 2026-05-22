@@ -30,5 +30,6 @@ public class TenantConfiguration:IEntityTypeConfiguration<Tenant>
             .HasMaxLength(200)
             .IsRequired()
             .IsUnicode();
+        
     }
 }
