@@ -1,8 +1,9 @@
 ﻿using Domain.Enums;
+using Domain.Interfaces;
 
 namespace Domain.Entities;
 
-public class User
+public class User:TenantEntityContract
 {
     public Guid Id { get; private set; }
     public string FullName { get; private set; }

@@ -1,6 +1,8 @@
+using Domain.Interfaces;
+
 namespace Domain.Entities;
 
-public class Service
+public class Service:TenantEntityContract
 {
     public Guid Id { get; private set; }
     public string Title { get; private set; }

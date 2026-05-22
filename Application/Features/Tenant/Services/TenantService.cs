@@ -29,7 +29,7 @@ public class TenantService:TenantServiceContract
         // Todo : Date manager
         // Todo : if for duplicate slug
         var tenant = new Domain.Entities.Tenant(dto.Name,dto.Slug,dto.SubscriptionExpireDate);
-            
+                
         var userId=_userContext.UserId;
         var user = await _userRepository.GetUserByIdAsync(userId);
         
@@ -40,7 +40,8 @@ public class TenantService:TenantServiceContract
         user.ChangeRoleTo(UserRole.Admin);
         user.AssignTenantToUser(tenant.Id);
         await _tenantRepository.SaveAsync();
-        
+
+        var tenantId = await _tenantRepository.GetCurrentTenantAsync();
         return $"{tenant.Name} Registered belong to user {user.FullName} created";
     }
 }
