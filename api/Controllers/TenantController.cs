@@ -19,7 +19,7 @@ public class TenantController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles =  "User,Admin")]
+    [Authorize(Roles =  "SuperAdmin")]
     public async Task<IActionResult> RegisterTenant([FromBody] RegisterTenantDTO dto)
     {
         // Todo: expire date base on plan 

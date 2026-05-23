@@ -4,5 +4,5 @@ namespace Application.Features.Tenant.Services;
 
 public interface TenantServiceContract
 {
-    Task<string> Register(RegisterTenantDTO dto);
+    Task<Guid> Register(RegisterTenantDTO dto);
 }

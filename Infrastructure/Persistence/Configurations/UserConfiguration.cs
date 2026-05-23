@@ -47,9 +47,10 @@ public class UserConfiguration:IEntityTypeConfiguration<User>
             .WithMany(t=>t.Users)
             .HasForeignKey(t => t.TenantId)
             .OnDelete(DeleteBehavior.Cascade);
+        
         builder.HasCheckConstraint(
             "CK_Role_Valid_Values",
-            "[Role] IN (0, 1)"
+            "[Role] IN (0,1,2,3)"
         );
     }
 }
