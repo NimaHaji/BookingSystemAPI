@@ -33,6 +33,13 @@ public class UserRepository : IUserRepository
         return await _context.Users.AnyAsync(x => x.Id == userId);
     }
 
+    public async Task<bool> IsUserExistsByEmailAsync(string email)
+    {
+        return await _context
+            .Users
+            .AnyAsync(x => x.Email == email);
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();

@@ -105,7 +105,6 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 });
 var app = builder.Build();
 
-app.UseMiddleware<TenantResolutionMiddleware>();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -129,6 +128,7 @@ app.UseRouting();
 
 app.UseAuthentication();  
 app.UseAuthorization();
+app.UseMiddleware<TenantResolutionMiddleware>();
 
 app.MapControllers();
 

@@ -5,6 +5,7 @@ using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Interfaces;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Exceptions;
 
 namespace Application.Features.Auth.Services;
 
@@ -34,6 +35,10 @@ public class UserService : IUserService
     public async Task<string> RegisterUserAsync(RegisterUserRequestDto registerUserRequestDto)
     {
         var password = _passwordHasher.Hash(registerUserRequestDto.Password);
+
+        if (await _userRepository.IsUserExistsByEmailAsync(registerUserRequestDto.Email))
+            throw new DuplicateUserException("Email already exists");
+        
         var user = new User(registerUserRequestDto.FullName, registerUserRequestDto.Email,
             registerUserRequestDto.PhoneNumber, password);
         await _userRepository.RegisterUserAsync(user);

@@ -23,7 +23,7 @@ public class TenantService:TenantServiceContract
         _userRepository = userRepository;
     }
 
-    public async Task<string> Register(RegisterTenantDTO dto)
+    public async Task<Guid> Register(RegisterTenantDTO dto)
     {
         //Todo: slug maker
         // Todo : Date manager
@@ -41,7 +41,7 @@ public class TenantService:TenantServiceContract
         user.AssignTenantToUser(tenant.Id);
         await _tenantRepository.SaveAsync();
 
-        var tenantId = await _tenantRepository.GetCurrentTenantAsync();
-        return $"{tenant.Name} Registered belong to user {user.FullName} created";
+        // var tenantId = await _tenantRepository.GetCurrentTenantAsync();
+        return tenant.Id;
     }
 }
