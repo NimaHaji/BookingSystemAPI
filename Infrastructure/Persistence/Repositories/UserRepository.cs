@@ -20,12 +20,22 @@ public class UserRepository : IUserRepository
         await SaveChangesAsync();
     }
 
-    public async Task<User?> GetUserByEmailAsync(string email)
+    public async Task<List<User>?> GetUsersByEmailAsync(string email)
     {
         return await _context
             .Users
+            .Include(t=>t.Tenant)
             .Where(x => email == x.Email)
-            .FirstOrDefaultAsync();
+            .ToListAsync();
+    }
+
+    public async Task<List<Tenant?>> GetIdentityByEmailAsync(string email)
+    {
+        return await _context
+            .Users
+            .Where(us => us.Email == email)
+            .Select(t => t.Tenant)
+            .ToListAsync();
     }
 
     public async Task<bool> IsUserExistsByIdAsync(Guid userId)
@@ -63,6 +73,22 @@ public class UserRepository : IUserRepository
         return await _context
             .Users
             .Where(x => x.Id == userId)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<User?> GetUserByEmailAndTenantIdAsync(string email, Guid tenantId)
+    {
+        return await _context
+            .Users
+            .Where(x => x.Email == email && x.TenantId == tenantId)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<User?> GetUserByTenantIdAsync(Guid tenantId)
+    {
+       return await _context
+            .Users
+            .Where(us => us.TenantId == tenantId)
             .FirstOrDefaultAsync();
     }
 }
