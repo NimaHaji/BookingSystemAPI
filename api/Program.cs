@@ -81,7 +81,6 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-
 builder.Services.AddScoped<IHasher, Sha256Hasher>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<AssemblyReference>();
@@ -105,6 +104,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     };
 });
 var app = builder.Build();
+app.UseStaticFiles();
 
 using (var scope = app.Services.CreateScope())
 {

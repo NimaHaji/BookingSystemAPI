@@ -24,7 +24,7 @@ public static class DependencyInjection
     {
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-
+        services.AddScoped<HttpClient>();
         services.AddHttpContextAccessor();
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
         services.AddScoped<IServiceRepository, ServiceRepository>();
