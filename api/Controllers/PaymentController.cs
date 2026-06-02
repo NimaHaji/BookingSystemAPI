@@ -42,7 +42,16 @@ public class PaymentController : ControllerBase
         
         var response=await _httpClient.PostAsync("https://sandbox.banktest.ir/saman/sep.shaparak.ir/OnlinePG/OnlinePG",content);
         
-        var res=await response.Content.ReadAsStringAsync();
-        return Ok(res);
+        var result = await response.Content.ReadFromJsonAsync<SepTokenResponse>();
+
+        if (result is null || result.status != 1)
+            return BadRequest(result);
+
+        return Ok(new CreatePaymentResponse
+        {
+            PayUrl = $"https://sandbox.banktest.ir/saman/sep.shaparak.ir/OnlinePG/SendToken?token={result.token}"
+        });
     }
+    [HttpPost]
+    public 
 }
