@@ -17,51 +17,52 @@ public class PasswordRecoveryService:IPasswordRecoveryService
         _codeGenerator = codeGenerator;
     }
 
+    //Todo: fix the logic of reset (Multi-Tenants)
     
-    public async Task ResetPasswordAsync(string email,string code,string newPassword)
-    {
-        var user=await _userRepository.GetUserByEmailAsync(email);
-        if (user == null)
-            throw new InvalidOperationException("Invalid request");
-        
-        var codeHash=_hasher.Hash(code);
-
-        if (!user.CanUseResetPassword(codeHash, DateTime.UtcNow))
-        {
-            user.IncreasePasswordResetAttemptCount();
-            await _userRepository.SaveChangesAsync();
-            throw new InvalidOperationException("Incorrect or expired code");
-        }
-        
-        var hashedPassword = _hasher.Hash(newPassword);
-        user.ResetPassword(hashedPassword, DateTime.UtcNow);
-        user.ClearPasswordResetCode();
-        
-        await _userRepository.SaveChangesAsync();
-    }
+    // public async Task ResetPasswordAsync(string email,string code,string newPassword)
+    // {
+    //     var user=await _userRepository.GetUserByEmailAsync(email);
+    //     if (user == null)
+    //         throw new InvalidOperationException("Invalid request");
+    //     
+    //     var codeHash=_hasher.Hash(code);
+    //
+    //     if (!user.CanUseResetPassword(codeHash, DateTime.UtcNow))
+    //     {
+    //         user.IncreasePasswordResetAttemptCount();
+    //         await _userRepository.SaveChangesAsync();
+    //         throw new InvalidOperationException("Incorrect or expired code");
+    //     }
+    //     
+    //     var hashedPassword = _hasher.Hash(newPassword);
+    //     user.ResetPassword(hashedPassword, DateTime.UtcNow);
+    //     user.ClearPasswordResetCode();
+    //     
+    //     await _userRepository.SaveChangesAsync();
+    // }
     
-    public async Task ForgetPasswordAsync(string email)
-    {
-        var user = await _userRepository.GetUserByEmailAsync(email);
-        if (user == null)
-            throw new NotFoundException($"user with email : {email} not found"); 
-
-        var code = _codeGenerator.Generate6DigitCode();
-        var codeHash = _hasher.Hash(code);
-
-        user.ResetPassword(
-            codeHash,
-            DateTime.UtcNow.AddMinutes(5)
-        );
-
-        await _userRepository.SaveChangesAsync();
-        
-        //Implement Email Service
-        
-        // await _emailService.SendAsync(
-        //     email,
-        //     "Password Reset Code",
-        //     $"Your verification code is: {code}"
-        // );
-    }
+    // public async Task ForgetPasswordAsync(string email)
+    // {
+    //     var user = await _userRepository.GetUserByEmailAsync(email);
+    //     if (user == null)
+    //         throw new NotFoundException($"user with email : {email} not found"); 
+    //
+    //     var code = _codeGenerator.Generate6DigitCode();
+    //     var codeHash = _hasher.Hash(code);
+    //
+    //     user.ResetPassword(
+    //         codeHash,
+    //         DateTime.UtcNow.AddMinutes(5)
+    //     );
+    //
+    //     await _userRepository.SaveChangesAsync();
+    //     
+    //     //Implement Email Service
+    //     
+    //     // await _emailService.SendAsync(
+    //     //     email,
+    //     //     "Password Reset Code",
+    //     //     $"Your verification code is: {code}"
+    //     // );
+    // }
 }

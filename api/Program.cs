@@ -11,6 +11,7 @@ using Infrastructure.Persistence;
 using Infrastructure.Security.Hashing;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -80,7 +81,6 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-
 builder.Services.AddScoped<IHasher, Sha256Hasher>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<AssemblyReference>();
@@ -104,11 +104,14 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     };
 });
 var app = builder.Build();
+app.UseStaticFiles();
 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<AppDbContext>();
 
+    context.Database.Migrate();
     DbInitializer.Seed(
         services.GetRequiredService<AppDbContext>(),
         services.GetRequiredService<IPasswordHasher>(),

@@ -38,7 +38,7 @@ public class UserService : IUserService
 
         if (await _userRepository.IsUserExistsByEmailAsync(registerUserRequestDto.Email))
             throw new DuplicateUserException("Email already exists");
-        
+
         var user = new User(registerUserRequestDto.FullName, registerUserRequestDto.Email,
             registerUserRequestDto.PhoneNumber, password);
         await _userRepository.RegisterUserAsync(user);
@@ -47,19 +47,71 @@ public class UserService : IUserService
 
     public async Task<LoginUserResponseDto> LoginUserAsync(LoginUserRequestDto loginUserRequestDto)
     {
-        var user = await _userRepository.GetUserByEmailAsync(loginUserRequestDto.Email);
+        var users = await _userRepository.GetUsersByEmailAsync(loginUserRequestDto.Email);
+
+        if (users == null)
+            throw new UnauthorizedAccessException("Invalid email or password");
+
+        var matchedUsers = users?
+            .Where(us => _passwordHasher.Verify(us.Password, loginUserRequestDto.Password))
+            .ToList();
+        if (matchedUsers.Count == 0)
+            throw new UnauthorizedAccessException("Invalid email or password");
+
+        if (matchedUsers.Count == 1)
+        {
+            var user = matchedUsers.First();
+
+            var token = _jwtTokenService.GenerateJwtToken(user);
+            var refreshTokenValue = _jwtTokenService.GenerateRefreshToken();
+            var refreshTokenHash = _hasher.Hash(refreshTokenValue);
+            var refreshToken = new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                Token = refreshTokenHash,
+                UserId = user.Id,
+                ExpiresAt = DateTime.UtcNow.AddDays(7)
+            };
+
+            await _refreshTokenRepository.AddAsync(refreshToken);
+            await _refreshTokenRepository.SaveChangesAsync();
+
+            return new LoginUserResponseDto(token, refreshTokenValue,null);
+        }
+
+        //Todo: challenge token
+        
+        return new LoginUserResponseDto(null, null,matchedUsers.Select(x => new IdentityResponse
+        (
+            x.Tenant.Id,
+            x.Tenant.Name
+        )).ToList()
+        );
+    }
+
+    public async Task ChangeRoleTo(UserRole role)
+    {
+        var userId = _userContext.UserId;
+        var user = await _userRepository.GetUserByIdAsync(userId);
+        user?.ChangeRoleTo(role);
+    }
+
+    public async Task<LoginUserResponseDto> SelectTenantIdAsync(SelectTenantRequestDto dto)
+    {
+        var user = await _userRepository.GetUserByEmailAndTenantIdAsync(dto.email,dto.tenantId);
 
         if (user == null)
             throw new UnauthorizedAccessException("Invalid email or password");
 
-        var isValid = _passwordHasher.Verify(user.Password, loginUserRequestDto.Password);
-
+        var isValid=_passwordHasher.Verify(user.Password,dto.password);
+        
         if (!isValid)
             throw new UnauthorizedAccessException("Invalid email or password");
-
-        var token = _jwtTokenService.GenerateJwtToken(user);
+        
+        var accessToken = _jwtTokenService.GenerateJwtToken(user);
         var refreshTokenValue = _jwtTokenService.GenerateRefreshToken();
         var refreshTokenHash = _hasher.Hash(refreshTokenValue);
+
         var refreshToken = new RefreshToken
         {
             Id = Guid.NewGuid(),
@@ -71,14 +123,7 @@ public class UserService : IUserService
         await _refreshTokenRepository.AddAsync(refreshToken);
         await _refreshTokenRepository.SaveChangesAsync();
 
-        return new LoginUserResponseDto(token, refreshTokenValue);
-    }
-
-    public async Task ChangeRoleTo(UserRole role)
-    {
-        var userId =_userContext.UserId;
-        var user =await _userRepository.GetUserByIdAsync(userId);
-        user?.ChangeRoleTo(role);
+        return new LoginUserResponseDto(accessToken,refreshTokenValue,null);
     }
 
     public async Task<string> LogoutUserAsync()
@@ -132,7 +177,7 @@ public class UserService : IUserService
         await _refreshTokenRepository.SaveChangesAsync();
         return new LoginUserResponseDto(
             newAccessToken,
-            newRefreshTokenValue ?? refreshToken
+            newRefreshTokenValue ?? refreshToken,null
         );
     }
 
@@ -154,10 +199,10 @@ public class UserService : IUserService
     {
         var userId = _userContext.UserId;
         var user = await _userRepository.GetUserByIdAsync(userId)
-            ??  throw new UnauthorizedAccessException("Invalid user id");
-        
-        user.UpdateProfile(dto.FullName,dto.PhoneNumber);
-        
+                   ?? throw new UnauthorizedAccessException("Invalid user id");
+
+        user.UpdateProfile(dto.FullName, dto.PhoneNumber);
+
         await _userRepository.SaveChangesAsync();
 
         return new ProfileResponseDto()
