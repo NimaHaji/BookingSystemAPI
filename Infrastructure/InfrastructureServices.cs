@@ -4,6 +4,7 @@ using Application.Common.Interfaces.Repositories;
 using Application.Features.Appointments.Interfaces;
 using Application.Features.AppointmentServiceLink.Interfaces;
 using Application.Features.Auth.Interfaces;
+using Application.Features.Payment.Interfaces;
 using Application.Features.Service.Interfaces;
 using Application.Features.Tenant.Interfaces;
 using Infrastructure.Persistence;
@@ -36,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped<IUSerContext, UserContext>();
         services.AddScoped<IVerificationCodeGenerator, VerificationCodeGenerator>();
         services.AddScoped<TenantRepositoryContract, TenantRepository>();
+        services.AddScoped<PaymentRepositoryContract, PaymentRepository>();
         
         return services;
     }

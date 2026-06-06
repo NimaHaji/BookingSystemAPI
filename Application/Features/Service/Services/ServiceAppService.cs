@@ -21,10 +21,10 @@ public class ServiceAppService:IServiceAppService
         if (_userContext.Role != UserRole.SuperAdmin)
             throw new ForbiddenAccessException("Only Admin Access");
     }
-    public async Task<string> CreateServiceAsync(CreateService createService)
+    public async Task<string> CreateServiceAsync(CreateServiceDto createServiceDto)
     {
         EnsureSuperAdmin();
-        var service=new Domain.Entities.Service(createService.Title,createService.DurationMinutes);
+        var service=new Domain.Entities.Service(createServiceDto.Title,createServiceDto.DurationMinutes,createServiceDto.TenantId);
         await _repository.CreatServiceAsync(service);
         return $"{service.Title} created";
     }

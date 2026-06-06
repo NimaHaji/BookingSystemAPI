@@ -14,7 +14,8 @@ public class PaymentController : ControllerBase
     private readonly IConfiguration _config;
     private readonly PaymentServiceContract _paymentServiceContract;
 
-    public PaymentController(HttpClient httpClient, IConfiguration config, PaymentServiceContract paymentServiceContract)
+    public PaymentController(HttpClient httpClient, IConfiguration config,
+        PaymentServiceContract paymentServiceContract)
     {
         _httpClient = httpClient;
         _config = config;
@@ -22,26 +23,26 @@ public class PaymentController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> RequestToken([FromBody]CreatePaymentDto dto)
+    public async Task<IActionResult> RequestToken([FromBody] CreatePaymentDto dto)
     {
-        var resNum = await _paymentServiceContract.GenerateResNum();
+        var resNum = await _paymentServiceContract.CreatePaymentAsync(dto);
         var requestBody = new
         {
-            action="token",
-            TerminalId=_config["Payment:TerminalId"],
-            Amount=dto.Amount,
-            ResNum=resNum,
-            RedirectUrl=_config["Payment:RedirectUrl"],
-            CellNumber=dto.PhoneNumber
+            action = "token",
+            TerminalId = _config["Payment:TerminalId"],
+            Amount = dto.Amount,
+            ResNum = resNum,
+            RedirectUrl = "http://salon1.localhost:8596/api/Payment/CallBack"
         };
-        
-        var content=new StringContent(
+
+        var content = new StringContent(
             JsonSerializer.Serialize(requestBody),
             Encoding.UTF8,
             "application/json");
-        
-        var response=await _httpClient.PostAsync("https://sandbox.banktest.ir/saman/sep.shaparak.ir/OnlinePG/OnlinePG",content);
-        
+
+        var response =
+            await _httpClient.PostAsync("https://sandbox.banktest.ir/saman/sep.shaparak.ir/OnlinePG/OnlinePG", content);
+
         var result = await response.Content.ReadFromJsonAsync<SepTokenResponse>();
 
         if (result is null || result.status != 1)
@@ -52,6 +53,28 @@ public class PaymentController : ControllerBase
             PayUrl = $"https://sandbox.banktest.ir/saman/sep.shaparak.ir/OnlinePG/SendToken?token={result.token}"
         });
     }
+
     [HttpPost]
-    public 
+    public async Task<IActionResult> CallBack()
+    {
+        var response=Request.Form.ToDictionary(x=>x.Key, x=>x.Value);
+        var dto = new SandBoxCallBackDto
+        {
+            MID = response.GetValueOrDefault("MID"),
+            Status = int.Parse(response.GetValueOrDefault("Status")),
+            State = response.GetValueOrDefault("State"),
+            RRN = response.GetValueOrDefault("RRN"),
+            RefNum = response.GetValueOrDefault("RefNum"),
+            ResNum = response.GetValueOrDefault("ResNum"),
+            TraceNo = response.GetValueOrDefault("TraceNo"),
+            Amount = long.Parse(response.GetValueOrDefault("Amount")),
+            Wage = response.GetValueOrDefault("Wage"),
+            CID = response.GetValueOrDefault("CID"),
+            SecurePan = response.GetValueOrDefault("SecurePan"),
+            Token = response.GetValueOrDefault("Token"),
+        };
+        await _paymentServiceContract.ProccessCallBack(dto);
+        return Ok();
+    }
+    
 }

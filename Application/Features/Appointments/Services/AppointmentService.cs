@@ -40,7 +40,7 @@ public class AppointmentService : IAppointmentService
             throw new UnauthorizedAccessException("Not Authenticated");
 
         var userId = _userContext.UserId;
-        var appointment = new Appointment(userId, dto.StartTime, dto.EndTime, dto.AppoinmentTitle);
+        var appointment = new Appointment(userId, dto.StartTime, dto.EndTime, dto.AppoinmentTitle,dto.TenantId);
 
         if (!await _userRepository.IsUserExistsByIdAsync(userId))
             throw new NotFoundException($"User with {userId} does not exist");

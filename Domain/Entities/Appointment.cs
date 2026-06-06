@@ -14,12 +14,12 @@ namespace Domain.Entities
         public AppointmentStatus Status { get; private set; }
         public Guid TenantId { get; set; }
         public Tenant Tenant { get; set; }
-
+        public ICollection<Payment> Payments { get; set; }
         public ICollection<AppointmentServiceLink> AppointmentServices { get; private set; } = new List<AppointmentServiceLink>();
 
         private Appointment() { } // For EF
 
-        public Appointment(Guid userId, DateTime startTime, DateTime endTime, string title)
+        public Appointment(Guid userId, DateTime startTime, DateTime endTime, string title,Guid tenantId)
         {
             if (startTime == default || endTime == default)
                 throw new ArgumentException("StartTime and EndTime are required");
@@ -31,6 +31,7 @@ namespace Domain.Entities
             StartTime = startTime;
             EndTime = endTime;
             Title = title;
+            TenantId = tenantId;
             Status = AppointmentStatus.Reserved;
         }
 
