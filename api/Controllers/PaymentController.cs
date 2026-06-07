@@ -76,5 +76,5 @@ public class PaymentController : ControllerBase
         await _paymentServiceContract.ProccessCallBack(dto);
         return Ok();
     }
-    
+
 }
