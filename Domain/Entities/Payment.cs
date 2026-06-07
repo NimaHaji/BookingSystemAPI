@@ -56,6 +56,14 @@ public class Payment
     {
         PaidAt = DateTime.UtcNow;
     }
+    public void MarkAsFailed()
+    {
+        PaymentStatus = PaymentStatus.Failed;
+    }
+    public void MarkAsSuccess()
+    {
+        PaymentStatus = PaymentStatus.Failed;
+    }
 }
 
 public enum PaymentStatus
