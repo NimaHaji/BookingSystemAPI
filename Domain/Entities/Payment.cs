@@ -24,6 +24,7 @@ public class Payment
 
     public PaymentStatus PaymentStatus{ get; set; }
     public int? PaymentGatewayStatus { get; set; }
+    public string? SecurePan { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

@@ -13,7 +13,6 @@ public class PaymentController : ControllerBase
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _config;
     private readonly PaymentServiceContract _paymentServiceContract;
-
     public PaymentController(HttpClient httpClient, IConfiguration config,
         PaymentServiceContract paymentServiceContract)
     {
@@ -55,6 +54,23 @@ public class PaymentController : ControllerBase
     }
 
     [HttpPost]
+    public async Task<IActionResult> RequestTokenZarinPal([FromBody] CreateZarinPalPaymentDto dto)
+    {
+        var request = new
+        {
+            merchant_id = _config["Payment:MerchantIdZarinPal"],
+            amount = dto.Amount,
+            description = dto.Description,
+            callback_url = _config["Payment:ZarinPalCallBackUrl"]
+        };
+        var response = await _httpClient.PostAsJsonAsync("https://sandbox.zarinpal.com/pg/v4/payment/request.json",request);
+
+        var result = await response.Content.ReadFromJsonAsync<ZarinPalResponse>();
+        var paymentUrl = "https://sandbox.zarinpal.com/pg/StartPay/"+result?.Data.Authority;
+        
+        return Ok(paymentUrl);
+    }
+    [HttpPost]
     public async Task<IActionResult> CallBack()
     {
         var response=Request.Form.ToDictionary(x=>x.Key, x=>x.Value);
@@ -77,4 +93,41 @@ public class PaymentController : ControllerBase
         return Ok();
     }
 
+    [HttpGet]
+    public async Task<IActionResult> ZarinPalCallBack([FromQuery] ZarinPalCallBackResponse response)
+    {
+        if (response.Status!="OK")
+        {
+            return BadRequest(response);
+        }
+
+        var verifyRequest = new
+        {
+            merchant_id = _config["Payment:MerchantIdZarinPal"],
+            //Todo : Read from db
+            amount = 50000,
+            authority = response.Authority
+        };
+        var verifyResponse = await _httpClient.PostAsJsonAsync("https://sandbox.zarinpal.com/pg/v4/payment/verify.json",verifyRequest);
+        
+        var result = await verifyResponse.Content.ReadFromJsonAsync<ZarinPalVerifyResponse>();
+        
+        // http://salon1.localhost:8596/api/Payment/ZarinPalCallBack?Authority=S00000000000000000000000000000ee1owr&Status=OK
+        if (result.Data.Code!=100)
+            return BadRequest(result);
+        
+        return Ok("پرداخت با موفقیت انجام شد شماره پیگیری "+result.Data.RefId);
+    }
+
+    // [HttpPost]
+    // public async Task<IActionResult> VerifyZarinPal()
+    // {
+    //     var request=new
+    //     {
+    //         merchant_id = _config["Payment:MerchantIdZarinPal"],
+    //         amount = dto.Amount,
+    //         description = dto.Description,
+    //         callback_url = _config["Payment:ZarinPalCallBackUrl"]
+    //     }
+    // }
 }

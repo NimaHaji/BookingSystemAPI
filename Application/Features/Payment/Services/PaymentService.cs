@@ -36,8 +36,8 @@ public class PaymentService : PaymentServiceContract
 
     public async Task<bool> ProccessCallBack(SandBoxCallBackDto dto)
     {
-        if (dto.State != "OK")
-            throw new Exception("پرداخت ناموفق");
+        // if (dto.State != "OK")
+        //     throw new Exception("پرداخت ناموفق");
         if (dto.ResNum == null)
             throw new Exception("شماره رزرو نامعتبر است .");
         var payment = await _paymentRepository.GetPaymentByResNumAsync(dto.ResNum);

@@ -39,6 +39,9 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .IsRequired();
         
         builder
+            .Property(p => p.SecurePan);
+        
+        builder
             .Property(p=>p.PaymentGatewayStatus);
         
         builder
