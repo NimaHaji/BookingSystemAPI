@@ -13,6 +13,7 @@ using Infrastructure.Security;
 using Infrastructure.Security.Context;
 using Infrastructure.Security.Hashing;
 using Infrastructure.Security.Jwt;
+using Infrastructure.Services.Implement;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +39,9 @@ public static class DependencyInjection
         services.AddScoped<IVerificationCodeGenerator, VerificationCodeGenerator>();
         services.AddScoped<TenantRepositoryContract, TenantRepository>();
         services.AddScoped<PaymentRepositoryContract, PaymentRepository>();
+        services.AddScoped<PaymentGatewayResolverContract, PaymentGatewayResolver>();
+        services.AddScoped<PaymentGatewayProviderContract, SamanPaymentGatewayProvider>();
+        services.AddScoped<PaymentGatewayProviderContract, ZarinPalPaymentGatewayProvider>();
         
         return services;
     }

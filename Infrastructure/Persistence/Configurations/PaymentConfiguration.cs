@@ -20,6 +20,10 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .Property(p => p.Amount)
             .IsRequired();
         
+        builder
+            .Property(p => p.Description)
+            .IsRequired();
+        
         builder.Property(p=>p.ResNum)
             .HasMaxLength(100)
             .IsRequired();
@@ -65,5 +69,11 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         
         builder
             .HasIndex(p => p.TenantId);
+
+        builder
+            .Property(p => p.Gateway);
+        
+        builder
+            .Property(p => p.Authority);
     }
 }

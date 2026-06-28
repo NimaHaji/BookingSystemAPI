@@ -1,4 +1,4 @@
-namespace Application.Features.Payment.DTOs;
+namespace Application.Features.Payment.DTOs.ZarinPal;
 
 public class ZarinPalCallBackResponse
 {

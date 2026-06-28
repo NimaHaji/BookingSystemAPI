@@ -33,6 +33,14 @@ public class PaymentRepository:PaymentRepositoryContract
             .FirstOrDefaultAsync();
     }
 
+    public async Task<Payment?> GetPaymentByAuthorityAsync(string authority)
+    {
+        return await _dbContext
+            .Payments
+            .Where(p => p.Authority == authority)
+            .FirstOrDefaultAsync();
+    }
+
     public Task<bool> IsExistByRefNum(string refNum)
     {
         throw new NotImplementedException();
