@@ -1,11 +1,13 @@
 using Application.Features.Payment.DTOs;
+using Application.Features.Payment.DTOs.ZarinPal;
+using Domain.Entities;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Features.Payment.Interfaces;
 
 public interface PaymentServiceContract
 {
-    Task<string> GenerateResNum();
-    Task<string> CreatePaymentAsync(CreatePaymentDto dto);
-    Task<bool> ProccessCallBack(SandBoxCallBackDto dto);
+    Task<string?> CreatePaymentAsync(CreatePaymentDto dto);
+    Task<string?> HandleCallBackAsync(PaymentGateway gateway,SandBoxCallBackDto dto);
     Task<bool> VerifyTransaction(string RefNum);
 }

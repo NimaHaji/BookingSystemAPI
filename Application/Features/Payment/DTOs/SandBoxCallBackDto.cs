@@ -1,8 +1,11 @@
+namespace Application.Features.Payment.DTOs;
+
 public class SandBoxCallBackDto
 {
-    public string? MID { get; set; }
+    public string? Authority { get; set; }
+    // public string? MID { get; set; }
 
-    public int? Status { get; set; }
+    public string? Status { get; set; }
 
     public string? State { get; set; }
 
@@ -14,7 +17,7 @@ public class SandBoxCallBackDto
 
     public string? TraceNo { get; set; }
 
-    public long Amount { get; set; }
+    public long? Amount { get; set; }
 
     public string? Wage { get; set; }
 
