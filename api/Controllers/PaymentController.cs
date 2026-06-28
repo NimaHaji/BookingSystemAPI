@@ -1,7 +1,10 @@
 using System.Text;
 using System.Text.Json;
 using Application.Features.Payment.DTOs;
+using Application.Features.Payment.DTOs.Saman;
+using Application.Features.Payment.DTOs.ZarinPal;
 using Application.Features.Payment.Interfaces;
+using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
@@ -14,44 +17,60 @@ public class PaymentController : ControllerBase
     private readonly IConfiguration _config;
     private readonly PaymentServiceContract _paymentServiceContract;
 
-    public PaymentController(HttpClient httpClient, IConfiguration config, PaymentServiceContract paymentServiceContract)
+    public PaymentController(HttpClient httpClient, IConfiguration config,
+        PaymentServiceContract paymentServiceContract)
     {
         _httpClient = httpClient;
         _config = config;
         _paymentServiceContract = paymentServiceContract;
     }
-
     [HttpPost]
-    public async Task<IActionResult> RequestToken([FromBody]CreatePaymentDto dto)
+    public async Task<IActionResult> GetPaymentUrl([FromBody] CreatePaymentDto dto)
     {
-        var resNum = await _paymentServiceContract.GenerateResNum();
-        var requestBody = new
-        {
-            action="token",
-            TerminalId=_config["Payment:TerminalId"],
-            Amount=dto.Amount,
-            ResNum=resNum,
-            RedirectUrl=_config["Payment:RedirectUrl"],
-            CellNumber=dto.PhoneNumber
-        };
-        
-        var content=new StringContent(
-            JsonSerializer.Serialize(requestBody),
-            Encoding.UTF8,
-            "application/json");
-        
-        var response=await _httpClient.PostAsync("https://sandbox.banktest.ir/saman/sep.shaparak.ir/OnlinePG/OnlinePG",content);
-        
-        var result = await response.Content.ReadFromJsonAsync<SepTokenResponse>();
-
-        if (result is null || result.status != 1)
-            return BadRequest(result);
-
-        return Ok(new CreatePaymentResponse
-        {
-            PayUrl = $"https://sandbox.banktest.ir/saman/sep.shaparak.ir/OnlinePG/SendToken?token={result.token}"
-        });
+        var paymentUrl = await _paymentServiceContract.CreatePaymentAsync(dto);
+        return Ok(paymentUrl);
     }
-    [HttpPost]
-    public 
+    private Dictionary<string, string?> GetAllValues()
+    {
+        var dict = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var q in Request.Query)
+            dict[q.Key] = q.Value.FirstOrDefault();
+
+        if (Request.HasFormContentType)
+        {
+            foreach (var f in Request.Form)
+                dict[f.Key] = f.Value.FirstOrDefault();
+        }
+
+        return dict;
+    }
+    [HttpPost("{gateway}")]
+    [HttpGet("{gateway}")]
+    public async Task<IActionResult> CallBack([FromRoute] PaymentGateway gateway)
+    {
+        var values = GetAllValues();
+
+        values.TryGetValue("Amount", out var amountStr);
+
+        var dto = new SandBoxCallBackDto
+        {
+            Authority = values.GetValueOrDefault("Authority"),
+            Status = values.GetValueOrDefault("Status"),
+            State = values.GetValueOrDefault("State"),
+            Amount = long.TryParse(amountStr, out var amount) ? amount : null,
+            RRN = values.GetValueOrDefault("RRN"),
+            RefNum = values.GetValueOrDefault("RefNum"),
+            ResNum = values.GetValueOrDefault("ResNum"),
+            TraceNo = values.GetValueOrDefault("TraceNo"),
+            Wage = values.GetValueOrDefault("Wage"),
+            SecurePan = values.GetValueOrDefault("SecurePan"),
+            CID = values.GetValueOrDefault("CID"),
+            Token = values.GetValueOrDefault("Token")
+        };
+
+        var result = await _paymentServiceContract.HandleCallBackAsync(gateway, dto);
+
+        return Ok(result);
+    }
 }

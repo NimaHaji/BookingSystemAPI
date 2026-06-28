@@ -17,9 +17,9 @@ public class ServiceController:ControllerBase
 
     [HttpPost]
     [Authorize(Roles =  "SuperAdmin")]
-    public async Task<IActionResult> Create([FromBody] CreateService service)
+    public async Task<IActionResult> Create([FromBody]CreateServiceDto serviceDto)
     {
-        var res=await _serviceAppService.CreateServiceAsync(service);
+        var res=await _serviceAppService.CreateServiceAsync(serviceDto);
         return Ok(res);
     }
 

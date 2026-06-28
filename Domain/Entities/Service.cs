@@ -13,7 +13,7 @@ public class Service:TenantEntityContract
 
     private Service() { }
 
-    public Service(string title, int durationMinutes)
+    public Service(string title, int durationMinutes, Guid tenantId)
     {
         if (durationMinutes <= 0)
             throw new ArgumentException("Invalid duration");
@@ -21,6 +21,7 @@ public class Service:TenantEntityContract
         Id = Guid.NewGuid();
         Title = title;
         DurationMinutes = durationMinutes;
+        TenantId= tenantId;
     }
 
     public void Edit(int durationMinutes,string title)

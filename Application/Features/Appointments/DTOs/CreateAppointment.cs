@@ -12,4 +12,6 @@ public class CreateAppointment
     public DateTime EndTime { get; set; }
     [Required]
     public string AppoinmentTitle { get; set; }
+    [Required] 
+    public Guid TenantId { get; set; }
 }

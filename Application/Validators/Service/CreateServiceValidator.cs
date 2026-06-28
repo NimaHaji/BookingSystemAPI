@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Application.Validators.Service;
 
-public class CreateServiceValidator:AbstractValidator<CreateService>
+public class CreateServiceValidator:AbstractValidator<CreateServiceDto>
 {
     public CreateServiceValidator()
     {

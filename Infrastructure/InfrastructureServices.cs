@@ -4,6 +4,7 @@ using Application.Common.Interfaces.Repositories;
 using Application.Features.Appointments.Interfaces;
 using Application.Features.AppointmentServiceLink.Interfaces;
 using Application.Features.Auth.Interfaces;
+using Application.Features.Payment.Interfaces;
 using Application.Features.Service.Interfaces;
 using Application.Features.Tenant.Interfaces;
 using Infrastructure.Persistence;
@@ -12,6 +13,7 @@ using Infrastructure.Security;
 using Infrastructure.Security.Context;
 using Infrastructure.Security.Hashing;
 using Infrastructure.Security.Jwt;
+using Infrastructure.Services.Implement;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,6 +38,10 @@ public static class DependencyInjection
         services.AddScoped<IUSerContext, UserContext>();
         services.AddScoped<IVerificationCodeGenerator, VerificationCodeGenerator>();
         services.AddScoped<TenantRepositoryContract, TenantRepository>();
+        services.AddScoped<PaymentRepositoryContract, PaymentRepository>();
+        services.AddScoped<PaymentGatewayResolverContract, PaymentGatewayResolver>();
+        services.AddScoped<PaymentGatewayProviderContract, SamanPaymentGatewayProvider>();
+        services.AddScoped<PaymentGatewayProviderContract, ZarinPalPaymentGatewayProvider>();
         
         return services;
     }
