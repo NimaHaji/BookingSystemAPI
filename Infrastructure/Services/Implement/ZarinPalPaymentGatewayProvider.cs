@@ -15,7 +15,8 @@ public class ZarinPalPaymentGatewayProvider : PaymentGatewayProviderContract
     private readonly HttpClient _httpClient;
     private readonly PaymentRepositoryContract _repositoryContract;
 
-    public ZarinPalPaymentGatewayProvider(IConfiguration config, HttpClient httpClient, PaymentRepositoryContract repositoryContract)
+    public ZarinPalPaymentGatewayProvider(IConfiguration config, HttpClient httpClient,
+        PaymentRepositoryContract repositoryContract)
     {
         _config = config;
         _httpClient = httpClient;
@@ -36,7 +37,8 @@ public class ZarinPalPaymentGatewayProvider : PaymentGatewayProviderContract
             {
                 Mobile = dto.Mobile,
                 Email = dto.Email,
-                OrderId = payment.ResNum
+                OrderId = payment.ResNum,
+                AutoVerify = bool.Parse(_config["Payment:ZarinPal_AutoVerify"])
             }
         };
         var request = new
@@ -72,28 +74,51 @@ public class ZarinPalPaymentGatewayProvider : PaymentGatewayProviderContract
         return PaymentGatewayRequestResult.Success(result.Data.Authority, paymentUrl);
     }
 
-    public async Task<string?> HandleCallBackAsync(PaymentGateway gateway, SandBoxCallBackDto dto)
+    public async Task<VerifyPaymentResult> HandleCallBackAsync(SandBoxCallBackDto dto)
     {
         if (dto.Status != "OK")
-        {
-            return "پرداخت ناموفق";
-        }
-        var payment=await _repositoryContract.GetPaymentByAuthorityAsync(dto.Authority);
+            return VerifyPaymentResult.Failed("پرداخت توسط کاربر لغو شد.");
+
+        return await VerifyPaymentAsync(dto.Authority);
+    }
+
+
+    public async Task<VerifyPaymentResult> VerifyPaymentAsync(string authority)
+    {
+        var payment = await _repositoryContract.GetPaymentByAuthorityAsync(authority);
+
+        if (payment is null)
+            return VerifyPaymentResult.Failed("تراکنش یافت نشد");
+            
         var verifyRequest = new
         {
             merchant_id = _config["Payment:MerchantIdZarinPal"],
             amount = payment.Amount,
-            authority = dto.Authority
+            authority = payment.Authority
         };
-        var verifyResponse =
-            await _httpClient.PostAsJsonAsync("https://sandbox.zarinpal.com/pg/v4/payment/verify.json", verifyRequest);
+        
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync(_config["Payment:ZarinPalVerifyUrl"], verifyRequest);
+            var result = await response.Content.ReadFromJsonAsync<ZarinPalVerifyResponse>();
 
-        var result = await verifyResponse.Content.ReadFromJsonAsync<ZarinPalVerifyResponse>();
-
-        if (result.Data.Code != 100 && result.Data.Code != 101)
-            return "پرداخت ناموفق .";
-        payment.Edit(dto.Status, result.Data.RefId, result.Data.CardPan, result.Data.Fee);
-        await _repositoryContract.SaveAsync();
-        return "پرداخت با موفقیت انجام شد شماره پیگیری " + result.Data.RefId;
+            if (result.Data != null && (result.Data.Code == 100 || result.Data.Code == 101))
+            {
+                payment.Edit("OK", result.Data.RefId, result.Data.CardPan, result.Data.Fee);
+                payment.MarkAsSuccess();
+                await _repositoryContract.SaveAsync();
+                return VerifyPaymentResult.Success($"نراکنش با شماره پیگیری {result.Data.RefId} انجام شد");
+            }
+            
+            payment.Edit("FAILED", null, null, 0);
+            payment.MarkAsFailed();
+            await _repositoryContract.SaveAsync();
+        
+            return VerifyPaymentResult.Failed("تایید تراکنش توسط درگاه انجام نشد.");
+        }
+        catch (Exception e)
+        {
+            return VerifyPaymentResult.Failed("خطای غیر منتظره در ارتباط با درگاه .");
+        }
     }
 }

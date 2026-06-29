@@ -24,28 +24,9 @@ public class PaymentService : PaymentServiceContract
         _httpClient = httpClient;
         _gatewayResolver = gatewayResolver;
     }
-
-    // public async Task<string?> CreatePaymentAsync(CreatePaymentDto dto)
-    // {
-    //     var payment = new Domain.Entities.Payment(dto.TenantId, dto.AppointmentId, dto.Amount, dto.Gateway);
-    //
-    //     var provider = _gatewayResolver.Resolve(dto.Gateway);
-    //     
-    //     var requestResult=await provider.RequestPaymentAsync(payment,dto);
-    //
-    //     if (!requestResult.IsSuccess)
-    //     {
-    //         payment.MarkAsFailed();
-    //         await _paymentRepository.SaveAsync();
-    //         
-    //         throw new InvalidOperationException(requestResult.ErrorMessage);
-    //     }
-    //     await _paymentRepository.CreatePaymentAsync(payment);
-    //     await _paymentRepository.SaveAsync();
-    //     return requestResult.PaymentUrl;
     public async Task<string?> CreatePaymentAsync(CreatePaymentDto dto)
     {
-        var payment = new Domain.Entities.Payment(dto.TenantId, dto.AppointmentId, dto.Amount, dto.Gateway);
+        var payment = new Domain.Entities.Payment(dto.TenantId, dto.AppointmentId, dto.Amount,dto.Description, dto.Gateway);
 
         var provider = _gatewayResolver.Resolve(dto.Gateway);
 
@@ -64,30 +45,10 @@ public class PaymentService : PaymentServiceContract
         return requestResult.PaymentUrl;
     }
 
-    public async Task<string?> HandleCallBackAsync(PaymentGateway gateway, SandBoxCallBackDto dto)
+    public async Task<VerifyPaymentResult> HandleCallBackAsync(PaymentGateway gateway, SandBoxCallBackDto dto)
     {
         var provider = _gatewayResolver.Resolve(gateway);
-        var result= await provider.HandleCallBackAsync(gateway, dto);
-        
+        var result= await provider.HandleCallBackAsync(dto);
         return result;
     }
-
-    public async Task<bool> VerifyTransaction(string RefNum)
-    {
-        var request = new
-        {
-            refNum = RefNum,
-            TerminalNumber = _configuration["Payment:TerminalId"]
-        };
-        var verifyUrl = _configuration["Payment:VerifyTransactionUrl"];
-        var response = await _httpClient.PostAsJsonAsync(verifyUrl, request);
-
-        if (!response.IsSuccessStatusCode)
-            return false;
-
-        var result = await response.Content.ReadAsStringAsync();
-        Console.WriteLine(result);
-        return result is not null;
-    }
-
 }

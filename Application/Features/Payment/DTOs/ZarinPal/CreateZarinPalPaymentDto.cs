@@ -11,7 +11,7 @@ public class CreateZarinPalPaymentDto
     [JsonPropertyName("referrer_id")]
     public string? ReferrerId { get; set; }
     
-    [JsonPropertyName("matadata")]
+    [JsonPropertyName("metadata")]
     public ZarinPalMataData ZarinPalMataData { get; set; }
 }
 
@@ -23,4 +23,6 @@ public class ZarinPalMataData
     public string? Email { get; set; }
     [JsonPropertyName("order_id")]
     public string? OrderId { get; set; }
+
+    [JsonPropertyName("auto_verify")] public bool AutoVerify { get; set; }
 }

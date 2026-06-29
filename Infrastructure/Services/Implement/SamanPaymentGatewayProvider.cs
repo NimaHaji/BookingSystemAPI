@@ -70,7 +70,7 @@ public class SamanPaymentGatewayProvider : PaymentGatewayProviderContract
         return PaymentGatewayRequestResult.Success(result.Token, paymentUrl);
     }
 
-    public async Task<string?> HandleCallBackAsync(PaymentGateway gateway, SandBoxCallBackDto dto)
+    public async Task<VerifyPaymentResult> HandleCallBackAsync(SandBoxCallBackDto dto)
     {
         var payment=await _paymentRepositoryContract.GetPaymentByAuthorityAsync(dto.Authority);
         var request = new
@@ -85,9 +85,13 @@ public class SamanPaymentGatewayProvider : PaymentGatewayProviderContract
         var result=await response.Content.ReadFromJsonAsync<VerifySamanPayment>();
         
         if (!response.IsSuccessStatusCode)
-            return "پرداخت ناموفق";
+            return VerifyPaymentResult.Failed("تراکنش ناموفق بود");
         
-        return result.ResultDescription;
+        return VerifyPaymentResult.Success(result.ResultDescription);
     }
 
+    public Task<VerifyPaymentResult> VerifyPaymentAsync(string authority)
+    {
+        throw new NotImplementedException();
+    }
 }
