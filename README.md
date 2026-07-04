@@ -196,8 +196,8 @@ Customer
 1. ریپازیتوری را Clone کنید:
 
 ```bash
-git clone https://github.com/<your-username>/<your-repository>.git
-cd <your-repository>
+git clone https://github.com/NimaHaji/BookingSystemApi.git
+cd BookingSystemApi
 ```
 
 2. پکیج‌ها را Restore کنید:
