@@ -4,6 +4,7 @@ namespace Application.Features.Payment.DTOs.ZarinPal;
 
 public class ZarinPalVerifyResponse
 {
+    [JsonPropertyName("data")]
     public ZarinPalVerifyData Data { get; set; }
 }
 

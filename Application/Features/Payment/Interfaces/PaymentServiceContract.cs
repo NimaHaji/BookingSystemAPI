@@ -8,6 +8,5 @@ namespace Application.Features.Payment.Interfaces;
 public interface PaymentServiceContract
 {
     Task<string?> CreatePaymentAsync(CreatePaymentDto dto);
-    Task<string?> HandleCallBackAsync(PaymentGateway gateway,SandBoxCallBackDto dto);
-    Task<bool> VerifyTransaction(string RefNum);
+    Task<VerifyPaymentResult> HandleCallBackAsync(PaymentGateway gateway,SandBoxCallBackDto dto);
 }

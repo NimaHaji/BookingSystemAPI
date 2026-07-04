@@ -10,5 +10,6 @@ public interface PaymentGatewayProviderContract
     
     Task<PaymentGatewayRequestResult> RequestPaymentAsync(Domain.Entities.Payment payment, CreatePaymentDto dto);
     
-    Task<string?> HandleCallBackAsync(PaymentGateway gateway, SandBoxCallBackDto dto);
+    Task<VerifyPaymentResult> HandleCallBackAsync(SandBoxCallBackDto dto);
+    Task<VerifyPaymentResult> VerifyPaymentAsync(string verifyAuthority);
 }
