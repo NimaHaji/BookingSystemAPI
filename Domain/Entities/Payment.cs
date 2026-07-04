@@ -32,7 +32,7 @@ public class Payment
 
     public DateTime? PaidAt { get; set; }
 
-    public Payment(Guid tenantId, Guid appointmentId, long amount, PaymentGateway gateway)
+    public Payment(Guid tenantId, Guid appointmentId, long amount,string description, PaymentGateway gateway)
     {
         Id = Guid.NewGuid();
         TenantId = tenantId;
@@ -40,6 +40,7 @@ public class Payment
         Amount = amount;
         Gateway=gateway;
         PaymentStatus = PaymentStatus.pending;
+        Description=description;
         CreatedAt = DateTime.UtcNow;
     }
 
@@ -70,7 +71,11 @@ public class Payment
     }
     public void MarkAsSuccess()
     {
+        if (PaymentStatus == PaymentStatus.Success)
+            return;
+
         PaymentStatus = PaymentStatus.Success;
+        PaidAt??=DateTime.UtcNow;
     }
     
     public void GenerateOrderNumber()

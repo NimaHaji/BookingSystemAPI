@@ -1,7 +1,88 @@
-bin/
-obj/
-/packages/
+# Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+
+# .NET / NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+project.lock.json
+project.assets.json
+artifacts/
+TestResults/
+coverage/
+coverage.*
+*.coverage
+*.coveragexml
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+*.csproj.user
+
+# Visual Studio
+.vs/
+*.vssscc
+*.vspscc
+_ReSharper*/
+_ReSharper.Caches/
+*.resharper
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+*.iml
 riderModule.iml
-/_ReSharper.Caches/
-appsettings.Development.json
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+!.vscode/launch.example.json
+!.vscode/tasks.example.json
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+logs/
+Log/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+secrets.json
 appsettings.json
+appsettings.*.json
+!appsettings.example.json
+!appsettings.*.example.json
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+*.mdf
+*.ldf
+
+# Docker local overrides
+docker-compose.override.yml
+
+# Publish output
+publish/
+wwwroot/dist/
