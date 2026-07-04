@@ -66,16 +66,15 @@ public class SamanPaymentGatewayProvider : PaymentGatewayProviderContract
         }
 
         var paymentUrl = $"{paymentPageUrl}?token={result.Token}";
-
         return PaymentGatewayRequestResult.Success(result.Token, paymentUrl);
     }
 
     public async Task<VerifyPaymentResult> HandleCallBackAsync(SandBoxCallBackDto dto)
     {
-        var payment=await _paymentRepositoryContract.GetPaymentByAuthorityAsync(dto.Authority);
+        var payment=await _paymentRepositoryContract.GetPaymentByResNumAsync(dto.ResNum);
         var request = new
         {
-            RefNum = payment.RefNum,
+            RefNum = dto.RefNum,
             TerminalNumber = _configuration["Payment:TerminalId"]
         };
         var verifyUrl = _configuration["Payment:VerifyTransactionUrl"];
@@ -90,7 +89,7 @@ public class SamanPaymentGatewayProvider : PaymentGatewayProviderContract
         return VerifyPaymentResult.Success(result.ResultDescription);
     }
 
-    public Task<VerifyPaymentResult> VerifyPaymentAsync(string authority)
+    public Task<VerifyPaymentResult> VerifyPaymentAsync(string verifyAuthority)
     {
         throw new NotImplementedException();
     }

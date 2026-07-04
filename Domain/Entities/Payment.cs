@@ -71,7 +71,11 @@ public class Payment
     }
     public void MarkAsSuccess()
     {
+        if (PaymentStatus == PaymentStatus.Success)
+            return;
+
         PaymentStatus = PaymentStatus.Success;
+        PaidAt??=DateTime.UtcNow;
     }
     
     public void GenerateOrderNumber()

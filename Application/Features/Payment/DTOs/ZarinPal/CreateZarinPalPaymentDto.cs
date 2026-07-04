@@ -12,10 +12,10 @@ public class CreateZarinPalPaymentDto
     public string? ReferrerId { get; set; }
     
     [JsonPropertyName("metadata")]
-    public ZarinPalMataData ZarinPalMataData { get; set; }
+    public ZarinPalMetaData ZarinPalMetaData { get; set; }
 }
 
-public class ZarinPalMataData
+public class ZarinPalMetaData
 {
     [JsonPropertyName("mobile")]        
     public string? Mobile { get; set; }

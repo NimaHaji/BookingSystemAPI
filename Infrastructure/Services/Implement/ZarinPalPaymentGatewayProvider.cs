@@ -33,7 +33,7 @@ public class ZarinPalPaymentGatewayProvider : PaymentGatewayProviderContract
             Amount = dto.Amount,
             Description = dto.Description,
             ReferrerId = dto.ReferrerId,
-            ZarinPalMataData = new ZarinPalMataData
+            ZarinPalMetaData = new ZarinPalMetaData
             {
                 Mobile = dto.Mobile,
                 Email = dto.Email,
@@ -47,7 +47,7 @@ public class ZarinPalPaymentGatewayProvider : PaymentGatewayProviderContract
             amount = requestDto.Amount,
             description = requestDto.Description,
             callback_url = _config["Payment:ZarinPalCallBackUrl"],
-            matadata = requestDto.ZarinPalMataData
+            metadata = requestDto.ZarinPalMetaData
         };
 
         using var response =
@@ -63,7 +63,7 @@ public class ZarinPalPaymentGatewayProvider : PaymentGatewayProviderContract
         }
 
         var result = JsonSerializer.Deserialize<ZarinPalResponse>(raw);
-        if (result is null || string.IsNullOrWhiteSpace(result.Data.Authority))
+        if (string.IsNullOrWhiteSpace(result?.Data?.Authority))
         {
             return PaymentGatewayRequestResult.Failed(
                 "INVALID_RESPONSE",
@@ -76,11 +76,29 @@ public class ZarinPalPaymentGatewayProvider : PaymentGatewayProviderContract
 
     public async Task<VerifyPaymentResult> HandleCallBackAsync(SandBoxCallBackDto dto)
     {
+        var payment = await _repositoryContract.GetPaymentByAuthorityAsync(dto.Authority);
+
+        if (payment is null)
+            return VerifyPaymentResult.Failed("تراکنش یافت نشد.");
+
         if (dto.Status != "OK")
+        {
+            payment.Edit("NOK", null, null, 0);
+            payment.MarkAsFailed();
+            await _repositoryContract.SaveAsync();
+
             return VerifyPaymentResult.Failed("پرداخت توسط کاربر لغو شد.");
+        }
+
+        if (payment.PaymentStatus == PaymentStatus.Success)
+        {
+            return VerifyPaymentResult.Success(
+                $"این تراکنش قبلاً تایید شده است. شماره پیگیری: {payment.RefNum}");
+        }
 
         return await VerifyPaymentAsync(dto.Authority);
     }
+
 
 
     public async Task<VerifyPaymentResult> VerifyPaymentAsync(string authority)
@@ -89,36 +107,62 @@ public class ZarinPalPaymentGatewayProvider : PaymentGatewayProviderContract
 
         if (payment is null)
             return VerifyPaymentResult.Failed("تراکنش یافت نشد");
-            
+
         var verifyRequest = new
         {
             merchant_id = _config["Payment:MerchantIdZarinPal"],
             amount = payment.Amount,
-            authority = payment.Authority
+            authority = authority
         };
-        
+
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(_config["Payment:ZarinPalVerifyUrl"], verifyRequest);
-            var result = await response.Content.ReadFromJsonAsync<ZarinPalVerifyResponse>();
+            var response = await _httpClient.PostAsJsonAsync(
+                _config["Payment:ZarinPalVerifyUrl"],
+                verifyRequest);
 
-            if (result.Data != null && (result.Data.Code == 100 || result.Data.Code == 101))
+            var raw = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                return VerifyPaymentResult.Failed($"خطا از درگاه: {raw}");
+
+            var result = JsonSerializer.Deserialize<ZarinPalVerifyResponse>(raw);
+
+            if (result?.Data is null)
+                return VerifyPaymentResult.Failed("پاسخ نامعتبر از درگاه زرین پال");
+
+            if (result.Data.Code == 100)
             {
                 payment.Edit("OK", result.Data.RefId, result.Data.CardPan, result.Data.Fee);
                 payment.MarkAsSuccess();
                 await _repositoryContract.SaveAsync();
-                return VerifyPaymentResult.Success($"نراکنش با شماره پیگیری {result.Data.RefId} انجام شد");
+
+                return VerifyPaymentResult.Success(
+                    $"تراکنش با شماره پیگیری {result.Data.RefId} انجام شد");
             }
-            
-            payment.Edit("FAILED", null, null, 0);
+
+            if (result.Data.Code == 101)
+            {
+                if (payment.PaymentStatus != PaymentStatus.Success)
+                {
+                    payment.Edit("OK", result.Data.RefId, result.Data.CardPan, result.Data.Fee);
+                    payment.MarkAsSuccess();
+                    await _repositoryContract.SaveAsync();
+                }
+
+                return VerifyPaymentResult.Success(
+                    $"این تراکنش قبلاً تایید شده است. شماره پیگیری: {result.Data.RefId}");
+            }
+
+            payment.Edit("NOK", null, null, 0);
             payment.MarkAsFailed();
             await _repositoryContract.SaveAsync();
-        
+
             return VerifyPaymentResult.Failed("تایید تراکنش توسط درگاه انجام نشد.");
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return VerifyPaymentResult.Failed("خطای غیر منتظره در ارتباط با درگاه .");
+            return VerifyPaymentResult.Failed("خطای غیر منتظره در ارتباط با درگاه.");
         }
     }
 }
